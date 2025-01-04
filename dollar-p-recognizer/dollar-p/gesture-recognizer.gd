@@ -8,19 +8,19 @@ class GesturePoint:
 	var id: int #what stroke index the point belongs to
 	var angle: float
 	
-	func _init(x: float, y: float, id: int, angle: float = 0.0):
-		x = x
-		y = y
-		id = id
-		angle = angle
+	func _init(_x: float, _y: float, _id: int, _angle: float = 0.0):
+		x = _x
+		y = _y
+		id = _id
+		angle = _angle
 
 class Gesture:
 	var name: String
 	var points: Array[GesturePoint]
 	
-	func _init(name: String, points: Array[GesturePoint]):
-		name = name
-		points = normalize_points(points)
+	func _init(_name: String, _points: Array[GesturePoint]):
+		name = _name
+		points = normalize_points(_points)
 		
 	func Centroid(points : Array[GesturePoint]) -> GesturePoint:
 		var x = 0.0
@@ -44,7 +44,7 @@ class Gesture:
 				length += Distance(points[i-1], points[i])
 		return length
 	
-	func normalize_points(points: Array) -> Array:
+	func normalize_points(points: Array[GesturePoint]) -> Array[GesturePoint]:
 		points = Resample(points, 32)
 		points = Scale(points)
 		points = TranslateTo(points, GesturePoint.new(0, 0, 0))
@@ -54,7 +54,8 @@ class Gesture:
 	func Resample(points : Array[GesturePoint], n : int) -> Array[GesturePoint]:
 		var interval_length = PathLength(points) / (n - 1)
 		var distance = 0.0
-		var new_points : Array[GesturePoint] = Array[points[0]]
+		var new_points : Array[GesturePoint]
+		new_points.append(points[0])
 		for i in range(1,points.size()-1):
 			if(points[i].id == points[i-1].id):
 				var d = Distance(points[i-1],points[i])
@@ -100,7 +101,7 @@ class Gesture:
 	
 	func ComputeNormalizedTurningAngles(points : Array[GesturePoint]) -> Array[GesturePoint]:
 		var new_points : Array[GesturePoint]
-		new_points[0] = points[0]
+		new_points.append(points[0])
 		for i in range(1,points.size()-2):
 			var dx = (points[i+1].x - points[i].x) * (points[i].x - points[i-1].x)
 			var dy = (points[i+1].y - points[i].y) * (points[i].y - points[i-1].y)
@@ -108,7 +109,7 @@ class Gesture:
 			var cos_angle = max(-1.0,min(1.0,(dx + dy) /dn))
 			var angle = acos(cos_angle) / PI
 			new_points.append(GesturePoint.new(points[i].x,points[i].y,points[i].id,angle))
-		new_points = Array[GesturePoint.new(points.back().x,points.back().y,points.back().id)]
+		new_points.append(GesturePoint.new(points.back().x,points.back().y,points.back().id))
 		return new_points
 
 class Result:
@@ -116,10 +117,10 @@ class Result:
 	var score : float
 	var time : float
 	
-	func _init(name : String, score : float, time : float):
-		name = name
-		score = score
-		time = time
+	func _init(_name : String, _score : float, _time : float):
+		name = _name
+		score = _score
+		time = _time
 
 # PDollarPlusRecognizer constants
 const NumPointClouds = 16;
@@ -147,7 +148,7 @@ func Recognize(points) -> Result:
 		
 func AddGesture(name : String,points : Array[GesturePoint]) -> bool:
 	var newGesture : Gesture = Gesture.new(name,points)
-	if(not(newGesture in gestures)):
+	if(newGesture in gestures):
 		return false
 	gestures.append(newGesture)
 	return true

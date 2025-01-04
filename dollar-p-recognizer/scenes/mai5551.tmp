@@ -4,3 +4,6 @@
 
 [node name="main" type="Node2D"]
 script = ExtResource("1_khqrb")
+line_width = null
+joint_mode = null
+cap_mode = null
