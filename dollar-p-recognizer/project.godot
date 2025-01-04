@@ -13,3 +13,7 @@ config_version=5
 config/name="dollar-p-recognizer"
 config/features=PackedStringArray("4.1", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+PRecognizer="*res://dollar-p/gesture-recognizer.gd"
