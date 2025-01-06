@@ -13,6 +13,8 @@ var gesture_points : Array[PRecognizer.GesturePoint]
 func _ready():
 	PRecognizer.gestures.append(PRecognizer.Gesture.new("T",[PRecognizer.GesturePoint.new(30,7,1),PRecognizer.GesturePoint.new(103,7,1),PRecognizer.GesturePoint.new(66,7,2),PRecognizer.GesturePoint.new(66,87,2)]))
 	PRecognizer.gestures.append(PRecognizer.Gesture.new("N",[PRecognizer.GesturePoint.new(177,92,1),PRecognizer.GesturePoint.new(177,2,1),PRecognizer.GesturePoint.new(182,1,2),PRecognizer.GesturePoint.new(246,95,2),PRecognizer.GesturePoint.new(247,87,3),PRecognizer.GesturePoint.new(247,1,3)]))
+	PRecognizer.gestures.append(PRecognizer.Gesture.new("Line",[PRecognizer.GesturePoint.new(12,347,1),PRecognizer.GesturePoint.new(119,347,1)]))
+	
 	drawTemplate(PRecognizer.gestures[1])
 	
 

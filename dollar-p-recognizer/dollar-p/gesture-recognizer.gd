@@ -171,13 +171,14 @@ func DistanceWithAngle(p1 : GesturePoint, p2 : GesturePoint): #$P+
 	
 func CloudDistance(pts1 : Array[GesturePoint],pts2 : Array[GesturePoint]):
 	var matched : Array[bool]
-	for k in range(pts1.size()-1):
+	var length = min(pts1.size(),pts2.size())
+	for k in range(length):
 		matched.append(false)
 	var sum = 0
-	for i in range(pts1.size()-1):
+	for i in range(length-1):
 		var ind = -1
 		var min = INF
-		for j in range(pts1.size()-1):
+		for j in range(length-1):
 			var d = DistanceWithAngle(pts1[i],pts2[j])
 			if d < min:
 				min = d
