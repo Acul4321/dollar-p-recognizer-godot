@@ -6,38 +6,45 @@ extends Node2D
 @export var cap_mode : int = 2
 
 var can_draw : bool = true
+var reset_draw : bool = false
 var stroke : Line2D
 
 var gesture_points : Array[PRecognizer.GesturePoint]
 
+var Recognizer : PRecognizer.PDollarPlusRecognizer = PRecognizer.PDollarPlusRecognizer.new()
+
 func _ready():
-	PRecognizer.gestures.append(PRecognizer.Gesture.new("T",[PRecognizer.GesturePoint.new(30,7,1),PRecognizer.GesturePoint.new(103,7,1),PRecognizer.GesturePoint.new(66,7,2),PRecognizer.GesturePoint.new(66,87,2)]))
-	PRecognizer.gestures.append(PRecognizer.Gesture.new("N",[PRecognizer.GesturePoint.new(177,92,1),PRecognizer.GesturePoint.new(177,2,1),PRecognizer.GesturePoint.new(182,1,2),PRecognizer.GesturePoint.new(246,95,2),PRecognizer.GesturePoint.new(247,87,3),PRecognizer.GesturePoint.new(247,1,3)]))
-	PRecognizer.gestures.append(PRecognizer.Gesture.new("Line",[PRecognizer.GesturePoint.new(12,347,1),PRecognizer.GesturePoint.new(119,347,1)]))
-	
-	drawTemplate(PRecognizer.gestures[1])
-	
+	Recognizer.gestures.append(PRecognizer.Gesture.new("T",[PRecognizer.GesturePoint.new(30,7,1),PRecognizer.GesturePoint.new(103,7,1),PRecognizer.GesturePoint.new(66,7,2),PRecognizer.GesturePoint.new(66,87,2)]))
+	Recognizer.gestures.append(PRecognizer.Gesture.new("Line",[PRecognizer.GesturePoint.new(12,347,1),PRecognizer.GesturePoint.new(119,347,1)]))
+	Recognizer.gestures.append(PRecognizer.Gesture.new("N",[PRecognizer.GesturePoint.new(177,92,1),PRecognizer.GesturePoint.new(177,2,1),PRecognizer.GesturePoint.new(182,1,2),PRecognizer.GesturePoint.new(246,95,2),PRecognizer.GesturePoint.new(247,87,3),PRecognizer.GesturePoint.new(247,1,3)]))
 
 func _input(event):
 	if event.is_action_pressed("confirm"):
 		gesture_points = confirmGesture()
-		#point normalization needed for classification
-		var tempGesture : PRecognizer.Gesture = PRecognizer.Gesture.new("",gesture_points)
-		gesture_points = tempGesture.points
-		
-		var result : PRecognizer.Result = PRecognizer.Recognize(gesture_points)
-		print(result.name)
-		
-		resetGesture()
+		if %GestureDraw.get_child_count() > 0:
+			#point normalization needed for classification
+			var tempGesture : PRecognizer.Gesture = PRecognizer.Gesture.new("",gesture_points)
+			gesture_points = tempGesture.points
+			
+			#result logic
+			var result : PRecognizer.Result = Recognizer.Recognize(gesture_points)
+			%DescLabel.text = "Result: " + str(result.name) + " (" + str(round(result.score*100)) + ")  in " + str(round(result.time*1000)) + "ms"
+			print(result.name)
+			
+			drawGesture(Recognizer.gestures[Recognizer.getGestureIndexByName(result.name)])
+			reset_draw = true
 	
 	if can_draw:
 		if event.is_action_pressed("draw"):
+			if reset_draw:
+				resetGesture()
+				reset_draw = false
 			stroke = Line2D.new()
 			stroke.begin_cap_mode = cap_mode
 			stroke.end_cap_mode = cap_mode
 			stroke.antialiased = true
 			stroke.width = line_width
-			add_child(stroke)
+			%GestureDraw.add_child(stroke)
 		if event.is_action_released("draw"):
 			stroke = null
 			pass
@@ -49,14 +56,15 @@ func _process(delta: float) -> void:
 			stroke.add_point(get_global_mouse_position())
 			
 func resetGesture():
-	for child in get_children():
-			child.queue_free()
+	for child in %GestureDraw.get_children():
+		child.queue_free()
 	gesture_points.clear()
+	%previewGesture.clear_points()
 
 func confirmGesture() -> Array[PRecognizer.GesturePoint]:
 	var gesture_points : Array[PRecognizer.GesturePoint]
-	if(get_child_count() > 0):
-		var strokes = get_children()
+	if(%GestureDraw.get_child_count() > 0):
+		var strokes = %GestureDraw.get_children()
 		for i in range(strokes.size()):
 			var temp : Array[PRecognizer.GesturePoint] = lineToGesturePoints(strokes[i],i)
 			gesture_points.append_array(temp)
@@ -68,8 +76,9 @@ func lineToGesturePoints(line : Line2D,id : int) -> Array[PRecognizer.GesturePoi
 		new_points.append(PRecognizer.GesturePoint.new(p.x,p.y,id))
 	return new_points
 	
-func drawTemplate(gesture : PRecognizer.Gesture) -> void:
-	var gesture_line : Line2D = $Line2D
+func drawGesture(gesture : PRecognizer.Gesture) -> void:
+	var gesture_line : Line2D = %previewGesture
+	gesture_line.clear_points()
 	gesture_line.begin_cap_mode = cap_mode
 	gesture_line.end_cap_mode = cap_mode
 	gesture_line.antialiased = true
@@ -79,3 +88,18 @@ func drawTemplate(gesture : PRecognizer.Gesture) -> void:
 		var point : PRecognizer.GesturePoint = gesture.points_raw[i]
 		gesture_line.add_point(Vector2(point.x,point.y))
 		gesture_line.set_point_position(i,Vector2(point.x,point.y))
+
+
+func _on_ui_mouse_entered():
+	can_draw = false
+
+
+func _on_ui_mouse_exited():
+	can_draw = true
+
+
+func _on_save_pressed():
+	Recognizer.AddGesture(%GestureNameSave.text,confirmGesture())
+	%GestureNameSave.text = ''
+	reset_draw = true
+	

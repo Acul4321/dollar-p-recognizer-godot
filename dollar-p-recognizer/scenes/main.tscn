@@ -5,4 +5,84 @@
 [node name="main" type="Node2D"]
 script = ExtResource("1_khqrb")
 
-[node name="Line2D" type="Line2D" parent="."]
+[node name="UI" type="Panel" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = 661.0
+offset_top = 1.0
+offset_right = 1155.0
+offset_bottom = 649.0
+grow_horizontal = 0
+
+[node name="RecordPanel" type="VBoxContainer" parent="UI"]
+layout_mode = 2
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/RecordPanel"]
+layout_mode = 2
+alignment = 1
+
+[node name="DescLabel" type="RichTextLabel" parent="UI/RecordPanel/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 1
+theme_override_font_sizes/normal_font_size = 26
+text = "Please Draw On the left
+Left Click - Draw
+Right Click - Classify"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/RecordPanel"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="UI/RecordPanel"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/RecordPanel/HBoxContainer2"]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+
+[node name="Preview" type="Control" parent="UI/RecordPanel/HBoxContainer2"]
+custom_minimum_size = Vector2(400, 400)
+layout_mode = 2
+mouse_filter = 1
+
+[node name="previewGesture" type="Line2D" parent="UI/RecordPanel/HBoxContainer2/Preview"]
+unique_name_in_owner = true
+position = Vector2(200, 200)
+
+[node name="MarginContainer2" type="MarginContainer" parent="UI/RecordPanel"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="UI/RecordPanel"]
+layout_mode = 2
+alignment = 1
+
+[node name="GestureNameSave" type="TextEdit" parent="UI/RecordPanel/HBoxContainer3"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+mouse_filter = 1
+placeholder_text = "Enter Gesture Name"
+drag_and_drop_selection_enabled = false
+virtual_keyboard_enabled = false
+middle_mouse_paste_enabled = false
+
+[node name="Save" type="Button" parent="UI/RecordPanel/HBoxContainer3"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+mouse_filter = 1
+text = "Save"
+
+[node name="GestureDraw" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[connection signal="mouse_entered" from="UI" to="." method="_on_ui_mouse_entered"]
+[connection signal="mouse_exited" from="UI" to="." method="_on_ui_mouse_exited"]
+[connection signal="pressed" from="UI/RecordPanel/HBoxContainer3/Save" to="." method="_on_save_pressed"]

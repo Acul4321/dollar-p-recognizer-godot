@@ -1,0 +1,56 @@
+[gd_scene load_steps=2 format=3 uid="uid://bg5uuagmsr7dd"]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_khqrb"]
+
+[node name="main" type="Node2D"]
+script = ExtResource("1_khqrb")
+
+[node name="UI" type="Panel" parent="."]
+offset_left = 658.0
+offset_right = 1152.0
+offset_bottom = 648.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI"]
+layout_mode = 2
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/VBoxContainer"]
+custom_minimum_size = Vector2(0, 33.25)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="DescLabel" type="RichTextLabel" parent="UI/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Result: {name} ({score}) in {time} ms"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/VBoxContainer"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="UI/VBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/VBoxContainer/HBoxContainer2"]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+
+[node name="Preview" type="Control" parent="UI/VBoxContainer/HBoxContainer2"]
+custom_minimum_size = Vector2(400, 400)
+layout_mode = 2
+
+[node name="centre" type="Node2D" parent="UI/VBoxContainer/HBoxContainer2/Preview"]
+position = Vector2(200, 200)
+
+[node name="previewGesture" type="Line2D" parent="UI/VBoxContainer/HBoxContainer2/Preview/centre"]
+unique_name_in_owner = true
+
+[node name="GestureDraw" type="Node2D" parent="."]
+unique_name_in_owner = true

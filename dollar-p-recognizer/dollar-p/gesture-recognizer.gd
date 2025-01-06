@@ -1,7 +1,5 @@
 extends Node
 
-var gestures : Array[Gesture]
-
 class GesturePoint:
 	var x: float
 	var y: float
@@ -22,7 +20,7 @@ class Gesture:
 	func _init(_name: String, _points: Array[GesturePoint]):
 		name = _name
 		
-		points_raw = _points
+		points_raw =  TranslateTo(_points, GesturePoint.new(0, 0, 0))
 		
 		points = _points
 		points = Resample(points, 32)
@@ -125,72 +123,81 @@ class Result:
 		score = _score
 		time = _time
 
-# PDollarPlusRecognizer constants
-const NumPointClouds = 16; #dont need as we can just get the length
-const NumPoints = 32;
-var Origin = GesturePoint.new(0,0,0);
-
-func Recognize(points) -> Result:
-	var t0 = Time.get_unix_time_from_system()
-	var candidate = Gesture.new("",points)
-	var u = -1
-	var b = INF
-	for i in range(gestures.size()):
-		var d = min(CloudDistance(candidate.points,gestures[i].points),CloudDistance(gestures[i].points,candidate.points))
-		if(d < b):
-			b = d #best(min) distance
-			u = i #gesture index
-	var t1 = Time.get_unix_time_from_system()
-	var curScore = 0.0
-	if u == -1:
-		return Result.new("No match.", curScore, t1 - t0)
-	else:
-		if (b > 1.0): curScore = 1.0 / b
-		else: curScore = 1.0
-		return Result.new(gestures[u].name, curScore, t1 - t0);
-
-func AddGesture(name : String,points : Array[GesturePoint]) -> bool:
-	var newGesture : Gesture = Gesture.new(name,points)
-	if(newGesture in gestures):
+class PDollarPlusRecognizer:
+	var gestures : Array[Gesture]
+	
+	# PDollarPlusRecognizer constants
+	const NumPointClouds = 16; #dont need as we can just get the length
+	const NumPoints = 32;
+	var Origin = GesturePoint.new(0,0,0);
+	
+	func Recognize(points) -> Result:
+		var t0 = Time.get_unix_time_from_system()
+		var candidate = Gesture.new("",points)
+		var u = -1
+		var b = INF
+		for i in range(gestures.size()):
+			var d = min(CloudDistance(candidate.points,gestures[i].points),CloudDistance(gestures[i].points,candidate.points))
+			if(d < b):
+				b = d #best(min) distance
+				u = i #gesture index
+		var t1 = Time.get_unix_time_from_system()
+		var curScore = 0.0
+		if u == -1:
+			return Result.new("No match.", curScore, t1 - t0)
+		else:
+			if (b > 1.0): curScore = 1.0 / b
+			else: curScore = 1.0
+			return Result.new(gestures[u].name, curScore, t1 - t0);
+	
+	func AddGesture(name : String,points : Array[GesturePoint]) -> bool:
+		var newGesture : Gesture = Gesture.new(name,points)
+		if(newGesture in gestures):
+			return false
+		gestures.append(newGesture)
+		return true
+		
+	func getGestureIndexByName(name : String) -> int: #-1 for does not exist
+		for i in range(gestures.size()):
+			if gestures[i].name == name:
+				return i
+		return -1
+	
+	func DeleteGestureByName(name : String) -> bool:
+		for i in range(gestures.size()-1):
+			if name == gestures[i].name:
+				gestures.remove_at(i)
+				return true
 		return false
-	gestures.append(newGesture)
-	return true
-
-func DeleteGestureByName(name : String) -> bool:
-	for i in range(gestures.size()-1):
-		if name == gestures[i].name:
-			gestures.remove_at(i)
-			return true
-	return false
-	
-func DistanceWithAngle(p1 : GesturePoint, p2 : GesturePoint): #$P+
-	var dx = p2.x - p1.x
-	var dy = p2.y - p1.y
-	var da = p2.angle - p1.angle
-	return sqrt(dx * dx + dy * dy + da * da)
-	
-func CloudDistance(pts1 : Array[GesturePoint],pts2 : Array[GesturePoint]):
-	var matched : Array[bool]
-	var length = min(pts1.size(),pts2.size())
-	for k in range(length):
-		matched.append(false)
-	var sum = 0
-	for i in range(length-1):
-		var ind = -1
-		var min = INF
-		for j in range(length-1):
-			var d = DistanceWithAngle(pts1[i],pts2[j])
-			if d < min:
-				min = d
-				ind = j
-		matched[ind] = true
-		sum += min
-	for j in range(matched.size()-1):
-		if not(matched[j]):
+		
+	func DistanceWithAngle(p1 : GesturePoint, p2 : GesturePoint): #$P+
+		var dx = p2.x - p1.x
+		var dy = p2.y - p1.y
+		var da = p2.angle - p1.angle
+		return sqrt(dx * dx + dy * dy + da * da)
+		
+	func CloudDistance(pts1 : Array[GesturePoint],pts2 : Array[GesturePoint]):
+		var matched : Array[bool]
+		var length = min(pts1.size(),pts2.size())
+		for k in range(length):
+			matched.append(false)
+		var sum = 0
+		for i in range(length-1):
+			var ind = -1
 			var min = INF
-			for i in pts1.size()-1:
+			for j in range(length-1):
 				var d = DistanceWithAngle(pts1[i],pts2[j])
 				if d < min:
 					min = d
+					ind = j
+			matched[ind] = true
 			sum += min
-	return sum
+		for j in range(matched.size()-1):
+			if not(matched[j]):
+				var min = INF
+				for i in pts1.size()-1:
+					var d = DistanceWithAngle(pts1[i],pts2[j])
+					if d < min:
+						min = d
+				sum += min
+		return sum
