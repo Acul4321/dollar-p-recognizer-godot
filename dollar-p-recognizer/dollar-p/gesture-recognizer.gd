@@ -17,10 +17,18 @@ class GesturePoint:
 class Gesture:
 	var name: String
 	var points: Array[GesturePoint]
+	var points_raw: Array[GesturePoint]
 	
 	func _init(_name: String, _points: Array[GesturePoint]):
 		name = _name
-		points = normalize_points(_points)
+		
+		points_raw = _points
+		
+		points = _points
+		points = Resample(points, 32)
+		points = Scale(points)
+		points = TranslateTo(points, GesturePoint.new(0, 0, 0))
+		points = ComputeNormalizedTurningAngles(points) #little error
 		
 	func Centroid(points : Array[GesturePoint]) -> GesturePoint:
 		var x = 0.0
@@ -39,24 +47,18 @@ class Gesture:
 	
 	func PathLength(points : Array[GesturePoint]) -> float:
 		var length : float = 0
-		for i in range(1, points.size()-1):
+		for i in range(1, points.size()):
 			if points[i].id == points[i-1].id:
 				length += Distance(points[i-1], points[i])
 		return length
-	
-	func normalize_points(points: Array[GesturePoint]) -> Array[GesturePoint]:
-		points = Resample(points, 32)
-		points = Scale(points)
-		points = TranslateTo(points, GesturePoint.new(0, 0, 0))
-		points = ComputeNormalizedTurningAngles(points)
-		return points
 	
 	func Resample(points : Array[GesturePoint], n : int) -> Array[GesturePoint]:
 		var interval_length = PathLength(points) / (n - 1)
 		var distance = 0.0
 		var new_points : Array[GesturePoint]
 		new_points.append(points[0])
-		for i in range(1,points.size()-1):
+		var i = 0
+		while i < points.size():
 			if(points[i].id == points[i-1].id):
 				var d = Distance(points[i-1],points[i])
 				if((distance + d) >= interval_length):
@@ -68,6 +70,7 @@ class Gesture:
 					distance = 0.0
 				else:
 					distance += d
+			i += 1
 		if new_points.size() == n - 1:
 			new_points.append(points[points.size() - 1])
 		return new_points
@@ -123,7 +126,7 @@ class Result:
 		time = _time
 
 # PDollarPlusRecognizer constants
-const NumPointClouds = 16;
+const NumPointClouds = 16; #dont need as we can just get the length
 const NumPoints = 32;
 var Origin = GesturePoint.new(0,0,0);
 
@@ -132,11 +135,11 @@ func Recognize(points) -> Result:
 	var candidate = Gesture.new("",points)
 	var u = -1
 	var b = INF
-	for i in range(gestures.size()-1):
+	for i in range(gestures.size()):
 		var d = min(CloudDistance(candidate.points,gestures[i].points),CloudDistance(gestures[i].points,candidate.points))
 		if(d < b):
 			b = d #best(min) distance
-			u = i #gesture ind
+			u = i #gesture index
 	var t1 = Time.get_unix_time_from_system()
 	var curScore = 0.0
 	if u == -1:
@@ -145,7 +148,7 @@ func Recognize(points) -> Result:
 		if (b > 1.0): curScore = 1.0 / b
 		else: curScore = 1.0
 		return Result.new(gestures[u].name, curScore, t1 - t0);
-		
+
 func AddGesture(name : String,points : Array[GesturePoint]) -> bool:
 	var newGesture : Gesture = Gesture.new(name,points)
 	if(newGesture in gestures):
@@ -169,7 +172,7 @@ func DistanceWithAngle(p1 : GesturePoint, p2 : GesturePoint): #$P+
 func CloudDistance(pts1 : Array[GesturePoint],pts2 : Array[GesturePoint]):
 	var matched : Array[bool]
 	for k in range(pts1.size()-1):
-		matched[k] = false
+		matched.append(false)
 	var sum = 0
 	for i in range(pts1.size()-1):
 		var ind = -1

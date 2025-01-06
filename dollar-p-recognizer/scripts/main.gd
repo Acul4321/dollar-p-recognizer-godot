@@ -12,6 +12,9 @@ var gesture_points : Array[PRecognizer.GesturePoint]
 
 func _ready():
 	PRecognizer.gestures.append(PRecognizer.Gesture.new("T",[PRecognizer.GesturePoint.new(30,7,1),PRecognizer.GesturePoint.new(103,7,1),PRecognizer.GesturePoint.new(66,7,2),PRecognizer.GesturePoint.new(66,87,2)]))
+	PRecognizer.gestures.append(PRecognizer.Gesture.new("N",[PRecognizer.GesturePoint.new(177,92,1),PRecognizer.GesturePoint.new(177,2,1),PRecognizer.GesturePoint.new(182,1,2),PRecognizer.GesturePoint.new(246,95,2),PRecognizer.GesturePoint.new(247,87,3),PRecognizer.GesturePoint.new(247,1,3)]))
+	drawTemplate(PRecognizer.gestures[1])
+	
 
 func _input(event):
 	if event.is_action_pressed("confirm"):
@@ -34,7 +37,6 @@ func _input(event):
 			stroke.width = line_width
 			add_child(stroke)
 		if event.is_action_released("draw"):
-			#print("mouse up")
 			stroke = null
 			pass
 			
@@ -63,3 +65,15 @@ func lineToGesturePoints(line : Line2D,id : int) -> Array[PRecognizer.GesturePoi
 	for p in line.points:
 		new_points.append(PRecognizer.GesturePoint.new(p.x,p.y,id))
 	return new_points
+	
+func drawTemplate(gesture : PRecognizer.Gesture) -> void:
+	var gesture_line : Line2D = $Line2D
+	gesture_line.begin_cap_mode = cap_mode
+	gesture_line.end_cap_mode = cap_mode
+	gesture_line.antialiased = true
+	gesture_line.width = line_width
+	
+	for i in range(gesture.points_raw.size()):
+		var point : PRecognizer.GesturePoint = gesture.points_raw[i]
+		gesture_line.add_point(Vector2(point.x,point.y))
+		gesture_line.set_point_position(i,Vector2(point.x,point.y))

@@ -4,3 +4,5 @@
 
 [node name="main" type="Node2D"]
 script = ExtResource("1_khqrb")
+
+[node name="Line2D" type="Line2D" parent="."]
