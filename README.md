@@ -42,6 +42,7 @@ var result = Recognizer.Recognize([
     PRecognizer.GesturePoint.new(477,178,1),
     PRecognizer.GesturePoint.new(316,218,2),
     PRecognizer.GesturePoint.new(329,430,2)])
+
 print("Result: " + str(result.name) + " (" + str(round(result.score*100)) + ")  in " + str(round(result.time*1000)) + "ms")
 # Output : Result: T (28)  in 7ms
 ```
