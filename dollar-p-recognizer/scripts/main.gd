@@ -22,9 +22,6 @@ func _input(event):
 	if event.is_action_pressed("confirm"):
 		gesture_points = confirmGesture()
 		if %GestureDraw.get_child_count() > 0:
-			#point normalization needed for classification
-			var tempGesture : PRecognizer.Gesture = PRecognizer.Gesture.new("",gesture_points)
-			gesture_points = tempGesture.points
 			
 			#result logic
 			var result : PRecognizer.Result = Recognizer.Recognize(gesture_points)
@@ -102,4 +99,3 @@ func _on_save_pressed():
 	Recognizer.AddGesture(%GestureNameSave.text,confirmGesture())
 	%GestureNameSave.text = ''
 	reset_draw = true
-	
