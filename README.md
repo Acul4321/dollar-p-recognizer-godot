@@ -37,8 +37,13 @@ Recognizer.gestures.append(gestureT)
 Recognizer.gestures.append(gestireLine)
 
 # To classify the gestures we call the Recognize method to match with the previously registered Gesture objects
-var result = Recognizer.Recognize(gesture_points)
+var result = Recognizer.Recognize([
+    PRecognizer.GesturePoint.new(134,220,1),
+    PRecognizer.GesturePoint.new(477,178,1),
+    PRecognizer.GesturePoint.new(316,218,2),
+    PRecognizer.GesturePoint.new(329,430,2)])
 print("Result: " + str(result.name) + " (" + str(round(result.score*100)) + ")  in " + str(round(result.time*1000)) + "ms")
+# Output : Result: T (28)  in 7ms
 ```
 
 [^1]: Singleton: A global script which contains functions and variables used throughtout the program.
