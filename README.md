@@ -17,6 +17,26 @@ In the Godot Project Settings, upload the **gesture_recognizer.gd** as an Autolo
 Now You must define In code The Recognizer and gestures you wish to classify.
 #### Demo
 ``` gdscript
+# if Autoload has been defined as 'PRecognizer' as above, we instantiate a Recognizer class
+var Recognizer = PRecognizer.PDollarPlusRecognizer.new()
+
+# Create the gesture, each containing a name and an array of 'GesturePoint' objects
+# The 'GesturePoint' object has a x , y component aswell as an id(what stoke the point belongs to) and an angle
+var gestureT = PRecognizer.Gesture.new("T",[
+    PRecognizer.GesturePoint.new(30,7,1),
+    PRecognizer.GesturePoint.new(103,7,1),
+    PRecognizer.GesturePoint.new(66,7,2),
+    PRecognizer.GesturePoint.new(66,87,2)])
+
+var gestireLine = PRecognizer.Gesture.new("Line",[
+    PRecognizer.GesturePoint.new(12,347,1),
+    PRecognizer.GesturePoint.new(119,347,1)])
+
+# append gesture to recognizer
+Recognizer.gestures.append(gestureT)
+Recognizer.gestures.append(gestireLine)
+
+# recognize a point cloud
 ```
 
 [^1]: Singleton: A global script which contains functions and variables used throughtout the program.
