@@ -28,15 +28,17 @@ var gestureT = PRecognizer.Gesture.new("T",[
     PRecognizer.GesturePoint.new(66,7,2),
     PRecognizer.GesturePoint.new(66,87,2)])
 
-var gestireLine = PRecognizer.Gesture.new("Line",[
+var gestureLine = PRecognizer.Gesture.new("Line",[
     PRecognizer.GesturePoint.new(12,347,1),
     PRecognizer.GesturePoint.new(119,347,1)])
 
-# append gesture to recognizer
+# Register what gestures a Recognizer can classify by appending to the 'gestures' array of Gesture objects
 Recognizer.gestures.append(gestureT)
 Recognizer.gestures.append(gestireLine)
 
-# recognize a point cloud
+# To classify the gestures we call the Recognize method to match with the previously registered Gesture objects
+var result = Recognizer.Recognize(gesture_points)
+print("Result: " + str(result.name) + " (" + str(round(result.score*100)) + ")  in " + str(round(result.time*1000)) + "ms")
 ```
 
 [^1]: Singleton: A global script which contains functions and variables used throughtout the program.
